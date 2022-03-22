@@ -37,11 +37,10 @@ def combine_average():
     pairs.append(list(client_weights.keys())[0])
 
     for key in list(client_weights.keys())[1:]:
-        global_client["weights"] = global_client["weights"] + \
-            client_weights[key]["weights"]
+        for i in len(client_weights[key]["weights"]):
+            global_client["weights"][i] = (
+                global_client["weights"][i] + client_weights[key]["weights"][i]) / float(max_client)
         pairs.append(key)
-
-    global_client["weights"] = global_client["weights"] / float(max_client)
 
 @app.route("/get_weights", methods=["POST"])
 def get_model():
@@ -55,12 +54,15 @@ def get_model():
 
     with lock:
         client_weights[data["proc_name"]] = {
-            "weights": np.array(data["weights"]),
+            "weights": data["weights"],
             "score": data["score"]
         }
-        if len(client_weights.keys()) == max_client:
-            combine_average()
-            client_weights = {}
+        try:
+            if len(client_weights.keys()) == max_client:
+                combine_average()
+                client_weights = {}
+        except Exception as ex:
+            print("ex -> ", ex)
 
     return make_response({"message": "weights recieved without any problems"}, 200)
 
