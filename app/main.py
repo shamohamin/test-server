@@ -73,7 +73,7 @@ def get_model():
 @app.route("/get_glob_model", methods=["GET"])
 def get_global_model():
     global client_weights, global_client
-    proc_name = str(request.args.get("proc_name", "")).
+    proc_name = str(request.args.get("proc_name", "")).strip()
     g_weight = None
     with lock:
         if len(client_weights.keys()) != max_client:
