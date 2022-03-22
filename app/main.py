@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 
 def combine_models_with_score():
-    global client_weights, global_client
+    global client_weights, global_client, pairs
 
     global_client = client_weights[list(client_weights.keys())[0]]
     averageScore = 0
@@ -31,7 +31,7 @@ def combine_models_with_score():
 
 
 def combine_average():
-    global client_weights, global_client
+    global client_weights, global_client, pairs
 
     global_client = client_weights[list(client_weights.keys())[0]]
 
@@ -72,7 +72,7 @@ def get_model():
 
 @app.route("/get_glob_model", methods=["GET"])
 def get_global_model():
-    global client_weights, global_client
+    global client_weights, global_client, pairs
     proc_name = str(request.args.get("proc_name", "")).strip()
     g_weight = None
     
