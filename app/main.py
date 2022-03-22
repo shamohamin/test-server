@@ -35,9 +35,6 @@ def combine_average():
 
     global_client = client_weights[list(client_weights.keys())[0]]
 
-    for key in list(client_weights.keys())[:max_client]:
-        pairs.append(key)
-
     for i in range(len(client_weights[key]["weights"])):
         for key in list(client_weights.keys())[1:]:
             global_client["weights"][i] = (
@@ -47,7 +44,7 @@ def combine_average():
 
 @app.route("/get_weights", methods=["POST"])
 def get_model():
-    global client_weights
+    global client_weights, pairs
     data = pickle.loads(request.data)
     assert type(data) is dict
 
@@ -60,6 +57,8 @@ def get_model():
             "weights": data["weights"],
             "score": data["score"]
         }
+        pairs.append(data["proc_name"])
+        print("pairs => ", pairs)
         try:
             if len(client_weights.keys()) == max_client:
                 combine_average()
@@ -88,7 +87,7 @@ def get_global_model():
 
     if g_weight is None:
         return make_response({"message": "clients are not sufficed 2"}, 400)
-    c
+    
     return pickle.dumps({
         "weights": g_weight
     }), 200
