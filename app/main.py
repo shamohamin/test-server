@@ -34,8 +34,11 @@ def combine_average():
     global client_weights, global_client, pairs
 
     global_client = client_weights[list(client_weights.keys())[0]]
-
-    for i in range(len(client_weights[key]["weights"])):
+    
+    for key in list(client_weights.keys()):
+        pairs.append(key)
+    
+    for i in range(len(global_client["weights"])):
         for key in list(client_weights.keys())[1:]:
             global_client["weights"][i] = (
                 global_client["weights"][i] + client_weights[key]["weights"][i])
@@ -44,7 +47,8 @@ def combine_average():
 
 @app.route("/get_weights", methods=["POST"])
 def get_model():
-    global client_weights, pairs
+    global client_weights, pairs, global_client
+    
     data = pickle.loads(request.data)
     assert type(data) is dict
 
@@ -57,12 +61,22 @@ def get_model():
             "weights": data["weights"],
             "score": data["score"]
         }
-        pairs.append(data["proc_name"])
-        print("pairs => ", pairs)
+    
         try:
             if len(client_weights.keys()) == max_client:
-                combine_average()
+                global_client = client_weights[list(client_weights.keys())[0]]
+        
+                for i in range(len(global_client["weights"])):
+                    for key in list(client_weights.keys())[1:]:
+                        global_client["weights"][i] = (
+                            global_client["weights"][i] + client_weights[key]["weights"][i])
+                    global_client["weights"][i] /= float(max_client)
+                
                 client_weights = {}
+                
+                for key in list(client_weights.keys()):
+                    pairs.append(key)
+
         except Exception as ex:
             print("ex -> ", ex)
 
