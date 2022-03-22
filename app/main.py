@@ -38,7 +38,7 @@ def combine_average():
     for key in list(client_weights.keys())[:max_client]:
         pairs.append(key)
 
-    for i in len(client_weights[key]["weights"]):
+    for i in range(len(client_weights[key]["weights"])):
         for key in list(client_weights.keys())[1:]:
             global_client["weights"][i] = (
                 global_client["weights"][i] + client_weights[key]["weights"][i])
@@ -73,7 +73,7 @@ def get_model():
 @app.route("/get_glob_model", methods=["GET"])
 def get_global_model():
     global client_weights, global_client
-    proc_name = str(request.args.get("proc_name", ""))
+    proc_name = str(request.args.get("proc_name", "")).
     g_weight = None
     with lock:
         if len(client_weights.keys()) != max_client:
