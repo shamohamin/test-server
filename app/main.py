@@ -75,13 +75,20 @@ def get_global_model():
     global client_weights, global_client
     proc_name = str(request.args.get("proc_name", "")).strip()
     g_weight = None
+    
     with lock:
-        if len(client_weights.keys()) != max_client:
-            if proc_name not in pairs:
-                return make_response({"message": "clients are not sufficed"}, 400)
+        included = False
+        for pair in pairs:
+            if str(pair) == proc_name:
+                included = True
+        if not included:
+            return make_response({"message": "clients are not sufficed"}, 400)
         pairs.remove(proc_name)
         g_weight = global_client["weights"]
 
+    if g_weight is None:
+        return make_response({"message": "clients are not sufficed"}, 400)
+    
     return pickle.dumps({
         "weights": g_weight
     }), 200
