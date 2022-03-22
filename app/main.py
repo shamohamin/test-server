@@ -59,7 +59,7 @@ def get_model():
             "score": data["score"]
         }
         if len(client_weights.keys()) == max_client:
-            combine_models_with_score()
+            combine_average()
             client_weights = {}
 
     return make_response({"message": "weights recieved without any problems"}, 200)
