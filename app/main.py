@@ -82,13 +82,13 @@ def get_global_model():
             if str(pair) == proc_name:
                 included = True
         if not included:
-            return make_response({"message": "clients are not sufficed"}, 400)
+            return make_response({"message": "clients are not sufficed 1"}, 400)
         pairs.remove(proc_name)
         g_weight = global_client["weights"]
 
     if g_weight is None:
-        return make_response({"message": "clients are not sufficed"}, 400)
-    
+        return make_response({"message": "clients are not sufficed 2"}, 400)
+    c
     return pickle.dumps({
         "weights": g_weight
     }), 200
