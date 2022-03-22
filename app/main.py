@@ -34,13 +34,16 @@ def combine_average():
     global client_weights, global_client
 
     global_client = client_weights[list(client_weights.keys())[0]]
-    pairs.append(list(client_weights.keys())[0])
 
-    for key in list(client_weights.keys())[1:]:
-        for i in len(client_weights[key]["weights"]):
-            global_client["weights"][i] = (
-                global_client["weights"][i] + client_weights[key]["weights"][i]) / float(max_client)
+    for key in list(client_weights.keys())[:max_client]:
         pairs.append(key)
+
+    for i in len(client_weights[key]["weights"]):
+        for key in list(client_weights.keys())[1:]:
+            global_client["weights"][i] = (
+                global_client["weights"][i] + client_weights[key]["weights"][i])
+        global_client["weights"][i] /= float(max_client)
+
 
 @app.route("/get_weights", methods=["POST"])
 def get_model():
