@@ -200,5 +200,5 @@ def get_global_model():
 
 
 @app.route("/index", methods=["GET"])
-def index():
+def index(): 
     return "<h1> HELLO </h1>"
