@@ -88,9 +88,8 @@ def combine_average():
         global_client["weights"][i] /= float(max_client)
 
 
-@app.route("/get_weights", methods=["POST"])
+@app.route("/get_weights", methods=["POST"]) # insert that later doesnot accept pre from rear
 def get_model():
-    #global client_weights, pairs, global_client
 
     data = pickle.loads(request.data)
     assert type(data) is dict
@@ -126,40 +125,12 @@ def get_model():
         )
         print("major model created.")
         return make_response({"message": "second model inserted"}, 200)
-    # for key in ["weights", "proc_name", "score"]:
-    #     if key not in data.keys():
-    #         return make_response({"message": f"{key} are not provided"}, 400)
-
-    # with lock:
-    #     client_weights[data["proc_name"]] = {
-    #         "weights": data["weights"],
-    #         "score": data["score"]
-    #     }
-
-    #     try:
-    #         if len(client_weights.keys()) == max_client:
-    #             global_client = client_weights[list(client_weights.keys())[0]]
-
-    #             for i in range(len(global_client["weights"])):
-    #                 for key in list(client_weights.keys())[1:]:
-    #                     global_client["weights"][i] = (
-    #                         global_client["weights"][i] + client_weights[key]["weights"][i])
-    #                 global_client["weights"][i] /= float(max_client)
-
-    #             client_weights = {}
-
-    #             for key in list(client_weights.keys()):
-    #                 pairs.append(key)
-
-    #     except Exception as ex:
-    #         print("ex -> ", ex)
 
     return make_response({"message": "weights recieved without any problems"}, 200)
 
 
 @app.route("/get_glob_model", methods=["GET"])
 def get_global_model():
-    #global client_weights, global_client, pairs
 
     proc_name = str(request.args.get("proc_name", "")).strip()
 
@@ -183,20 +154,6 @@ def get_global_model():
         }), 200
 
     return make_response({"message": "clients are not sufficed 1"}, 400)
-    # g_weight = None
-
-    # with lock:
-    #     included = False
-    #     for pair in pairs:
-    #         if str(pair) == proc_name:
-    #             included = True
-    #     if not included or global_client is None:
-    #         return make_response({"message": "clients are not sufficed 1"}, 400)
-    #     pairs.remove(proc_name)
-    #     g_weight = global_client["weights"]
-
-    # if g_weight is None:
-    #     return make_response({"message": "clients are not sufficed 2"}, 400)
 
 
 @app.route("/index", methods=["GET"])
