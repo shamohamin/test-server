@@ -80,7 +80,7 @@ def combine_average():
 
     for key in list(client_weights.keys()):
         pairs.append(key)
-
+ 
     for i in range(len(global_client["weights"])):
         for key in list(client_weights.keys())[1:]:
             global_client["weights"][i] = (
