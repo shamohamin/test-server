@@ -160,5 +160,8 @@ def get_global_model():
 def index(): 
     return "<h1> HELLO </h1>"
 
-
-
+@app.route("/reset", methods=["POST"])
+def reset():
+    query_db("DELETE FROM global_model", commit=True)
+    query_db("DELETE FROM clients", commit=True)
+    return make_response({"message": "done"}, 200)
