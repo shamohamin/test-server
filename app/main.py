@@ -166,3 +166,4 @@ def reset():
     query_db("DELETE FROM clients", commit=True)
     return make_response({"message": "done"}, 200)
 
+
