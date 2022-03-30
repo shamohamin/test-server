@@ -167,3 +167,9 @@ def reset():
     return make_response({"message": "done"}, 200)
 
 
+@app.route("/reset1", methods=["POST"])
+def reset():
+    query_db("DELETE FROM global_model", commit=True)
+    query_db("DELETE FROM clients", commit=True)
+    return make_response({"message": "done"}, 200)
+
