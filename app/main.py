@@ -40,7 +40,7 @@ def query_db(query, args=(), one=False, commit=False):
         if commit:
             db.commit()
         cur.close()
-
+    
     return (rv[0] if rv else None) if one else rv
 
 
@@ -156,17 +156,16 @@ def get_global_model():
             """SELECT * FROM global_model WHERE client_1_name = ? OR client_2_name = ? OR client_3_name = ?""",
             args=(proc_name, proc_name, proc_name)
         )
-
+        
         if len(res) != 0:
             res = res[0]
-            print(res[1], res[2])
-            if res[5] == 2:
+            print(res[1], res[2], res[5])
+            if int(res[5]) == 2:
                 query_db("DELETE FROM global_model", commit=True)
-            elif res[5] == 0:
-                print(res[5])
-                
+            else:
+                print("client count", res[5])
                 query_db("UPDATE global_model SET client_count = ? WHERE id = ?", args=(
-                    res[5]+1, res[0]), commit=True)
+                    int(res[5])+1, res[0]), commit=True)
 
             return pickle.dumps({
                 "weights": pickle.loads(res[4])
@@ -182,13 +181,6 @@ def index():
 
 @app.route("/reset", methods=["POST"])
 def reset():
-    query_db("DELETE FROM global_model", commit=True)
-    query_db("DELETE FROM clients", commit=True)
-    return make_response({"message": "done"}, 200)
-
-
-@app.route("/reset1", methods=["POST"])
-def reset1():
     query_db("DELETE FROM global_model", commit=True)
     query_db("DELETE FROM clients", commit=True)
     return make_response({"message": "done"}, 200)
