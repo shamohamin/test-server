@@ -127,9 +127,10 @@ def get_model():
 
             major_client[i] = major_client[i] / float(max_client)
 
-        for client in clients[:max_client]:
-            query_db("DELETE FROM clients WHERE id = ?",
-                     args=(client[0],), commit=True)
+        
+        # for client in clients[:max_client]:
+        #     query_db("DELETE FROM clients WHERE id = ?",
+        #              args=(client[0],), commit=True)
 
         query_db(
             """INSERT INTO global_model(client_1_name, client_2_name, client_3_name, model, client_count) VALUES(?, ?, ?, ?, ?) """,
@@ -137,6 +138,8 @@ def get_model():
                   pickle.dumps(major_client), 0.0),
             commit=True
         )
+        query_db("DELETE FROM clients", commit=True)
+        
         print("major model created.")
         return make_response({"message": "second model inserted"}, 200)
 
@@ -148,25 +151,26 @@ def get_global_model():
 
     proc_name = str(request.args.get("proc_name", "")).strip()
 
-    res = query_db(
-        """SELECT * FROM global_model WHERE client_1_name = ? OR client_2_name = ? OR client_3_name = ?""",
-        args=(proc_name, proc_name, proc_name)
-    )
+    with lock:
+        res = query_db(
+            """SELECT * FROM global_model WHERE client_1_name = ? OR client_2_name = ? OR client_3_name = ?""",
+            args=(proc_name, proc_name, proc_name)
+        )
 
-    if len(res) != 0:
-        res = res[0]
-        print(res[1], res[2])
-        if res[5] == 2:
-            query_db("DELETE FROM global_model", commit=True)
-        elif res[5] == 0:
-            print(res[5])
-            with lock:
+        if len(res) != 0:
+            res = res[0]
+            print(res[1], res[2])
+            if res[5] == 2:
+                query_db("DELETE FROM global_model", commit=True)
+            elif res[5] == 0:
+                print(res[5])
+                
                 query_db("UPDATE global_model SET client_count = ? WHERE id = ?", args=(
                     res[5]+1, res[0]), commit=True)
 
-        return pickle.dumps({
-            "weights": pickle.loads(res[4])
-        }), 200
+            return pickle.dumps({
+                "weights": pickle.loads(res[4])
+            }), 200
 
     return make_response({"message": "clients are not sufficed 1"}, 400)
 
