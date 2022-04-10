@@ -80,7 +80,7 @@ def combine_average():
 
     for key in list(client_weights.keys()):
         pairs.append(key)
- 
+
     for i in range(len(global_client["weights"])):
         for key in list(client_weights.keys())[1:]:
             global_client["weights"][i] = (
@@ -88,7 +88,8 @@ def combine_average():
         global_client["weights"][i] /= float(max_client)
 
 
-@app.route("/get_weights", methods=["POST"]) # insert that later doesnot accept pre from rear
+# insert that later doesnot accept pre from rear
+@app.route("/get_weights", methods=["POST"])
 def get_model():
 
     data = pickle.loads(request.data)
@@ -138,7 +139,7 @@ def get_global_model():
         """SELECT * FROM global_model WHERE client_1_name = ? OR client_2_name = ?""",
         args=(proc_name, proc_name)
     )
-    
+
     if len(res) != 0:
         res = res[0]
         print(res[1], res[2])
@@ -148,7 +149,7 @@ def get_global_model():
         elif res[4] == 0:
             query_db("UPDATE global_model SET client_count = ? WHERE id = ?", args=(
                 1, res[0]), commit=True)
-        
+
         return pickle.dumps({
             "weights": pickle.loads(res[3])
         }), 200
@@ -157,8 +158,9 @@ def get_global_model():
 
 
 @app.route("/index", methods=["GET"])
-def index(): 
+def index():
     return "<h1> HELLO </h1>"
+
 
 @app.route("/reset", methods=["POST"])
 def reset():
@@ -172,9 +174,3 @@ def reset1():
     query_db("DELETE FROM global_model", commit=True)
     query_db("DELETE FROM clients", commit=True)
     return make_response({"message": "done"}, 200)
-
-
-
-
-
-
