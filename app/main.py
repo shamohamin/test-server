@@ -157,11 +157,12 @@ def get_global_model():
         res = res[0]
         print(res[1], res[2])
         if res[5] == 2:
-            query_db("DELETE FROM global_model where id = ?",
-                     args=(res[0], ), commit=True)
+            query_db("DELETE FROM global_model", commit=True)
         elif res[5] == 0:
-            query_db("UPDATE global_model SET client_count = ? WHERE id = ?", args=(
-                res[5]+1, res[0]), commit=True)
+            print(res[5])
+            with lock:
+                query_db("UPDATE global_model SET client_count = ? WHERE id = ?", args=(
+                    res[5]+1, res[0]), commit=True)
 
         return pickle.dumps({
             "weights": pickle.loads(res[4])
