@@ -12,6 +12,7 @@ create table global_model (
     id integer primary key AUTOINCREMENT,
     client_1_name varchar(50) not null,
     client_2_name varchar(50) not null,
+    client_3_name varchar(50) not null,
     model BLOB not null,
     client_count integer not null default 0
 );

@@ -8,7 +8,7 @@ import os
 
 lock = threading.Lock()
 client_weights = {}
-max_client = 2
+max_client = 3
 global_client = None
 pairs = []
 
@@ -95,11 +95,24 @@ def get_model():
     data = pickle.loads(request.data)
     assert type(data) is dict
 
+    query = "SELECT * from clients where name = ?"
+    
+    res = query_db(query, [data.get("proc_name")])
+    print(res)
+    if res is not None:
+        if type(res) is list:
+            if len(res) != 0:
+                query = """DELETE FROM clients WHERE id = ?"""
+
+                for r in res:
+                    query_db(query, [r[0]], commit=True)
+    
     query = """INSERT INTO clients(name, weights, score) 
-                values (?, ?, ?)"""
+            values (?, ?, ?)"""
 
     res = query_db(query, [data["proc_name"], sqlite3.Binary(
         pickle.dumps(data["weights"])), data["score"]], commit=True)
+            
 
     clients = query_db("SELECT * from clients ORDER BY id ASC")
     for client in clients:
@@ -119,8 +132,8 @@ def get_model():
                      args=(client[0],), commit=True)
 
         query_db(
-            """INSERT INTO global_model(client_1_name, client_2_name, model, client_count) VALUES(?, ?, ?, ?) """,
-            args=(clients[0][1], clients[1][1],
+            """INSERT INTO global_model(client_1_name, client_2_name, client_3_name, model, client_count) VALUES(?, ?, ?, ?, ?) """,
+            args=(clients[0][1], clients[1][1], clients[2][1],
                   pickle.dumps(major_client), 0.0),
             commit=True
         )
@@ -136,22 +149,22 @@ def get_global_model():
     proc_name = str(request.args.get("proc_name", "")).strip()
 
     res = query_db(
-        """SELECT * FROM global_model WHERE client_1_name = ? OR client_2_name = ?""",
-        args=(proc_name, proc_name)
+        """SELECT * FROM global_model WHERE client_1_name = ? OR client_2_name = ? OR client_3_name = ?""",
+        args=(proc_name, proc_name, proc_name)
     )
 
     if len(res) != 0:
         res = res[0]
         print(res[1], res[2])
-        if res[4] == 1:
+        if res[5] == 2:
             query_db("DELETE FROM global_model where id = ?",
                      args=(res[0], ), commit=True)
-        elif res[4] == 0:
+        elif res[5] == 0:
             query_db("UPDATE global_model SET client_count = ? WHERE id = ?", args=(
-                1, res[0]), commit=True)
+                res[5]+1, res[0]), commit=True)
 
         return pickle.dumps({
-            "weights": pickle.loads(res[3])
+            "weights": pickle.loads(res[4])
         }), 200
 
     return make_response({"message": "clients are not sufficed 1"}, 400)
